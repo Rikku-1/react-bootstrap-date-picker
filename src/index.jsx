@@ -10,6 +10,7 @@ const CalendarHeader = React.createClass({
     displayDate: React.PropTypes.object.isRequired,
     minDate: React.PropTypes.string,
     maxDate: React.PropTypes.string,
+    roundedCorners: React.PropTypes.bool,
     onChange: React.PropTypes.func.isRequired,
     monthLabels: React.PropTypes.array.isRequired,
     previousButtonElement: React.PropTypes.oneOfType([
@@ -94,7 +95,7 @@ const Calendar = React.createClass({
             } else if (Date.parse(date) === Date.parse(currentDate)) {
               className = 'text-primary';
             }
-            week.push(<td key={j} onClick={this.handleClick.bind(this, day)} style={{ cursor: 'pointer', padding: this.props.cellPadding}} className={className}>
+            week.push(<td key={j} onClick={this.handleClick.bind(this, day)} style={{ cursor: 'pointer', padding: this.props.cellPadding, borderRadius: this.props.roundedCorners ? 5 : 0 }} className={className}>
               {day}
             </td>);
           }
@@ -131,6 +132,7 @@ export default React.createClass({
     value: React.PropTypes.string,
     minDate: React.PropTypes.string,
     maxDate: React.PropTypes.string,
+    roundedCorners: React.PropTypes.bool,
     cellPadding: React.PropTypes.string,
     placeholder: React.PropTypes.string,
     dayLabels: React.PropTypes.array,
@@ -171,7 +173,8 @@ export default React.createClass({
       calendarPlacement: "bottom",
       dateFormat: dateFormat,
       showClearButton: true,
-      disabled: false
+      disabled: false,
+      roundedCorners: false
     }
   },
   getInitialState() {
@@ -405,7 +408,7 @@ export default React.createClass({
     return <InputGroup ref="inputGroup"  bsClass={this.props.showClearButton ? this.props.bsClass : ""} bsSize={this.props.bsSize} id={this.props.id ? this.props.id + "_group" : null}>
       <Overlay rootClose={true} onHide={this.handleHide} show={this.state.focused} container={() => this.props.calendarContainer || ReactDOM.findDOMNode(this.refs.overlayContainer)} target={() => ReactDOM.findDOMNode(this.refs.input)} placement={this.props.calendarPlacement} delayHide={200}>
         <Popover id="calendar" title={calendarHeader}>
-          <Calendar cellPadding={this.props.cellPadding} selectedDate={this.state.selectedDate} displayDate={this.state.displayDate} onChange={this.onChangeDate} dayLabels={this.state.dayLabels} weekStartsOnMonday={this.props.weekStartsOnMonday} minDate={this.props.minDate} maxDate={this.props.maxDate} />
+          <Calendar cellPadding={this.props.cellPadding} selectedDate={this.state.selectedDate} displayDate={this.state.displayDate} onChange={this.onChangeDate} dayLabels={this.state.dayLabels} weekStartsOnMonday={this.props.weekStartsOnMonday} minDate={this.props.minDate} maxDate={this.props.maxDate} roundedCorners={this.props.roundedCorners}/>
         </Popover>
       </Overlay>
       <div ref="overlayContainer" />
