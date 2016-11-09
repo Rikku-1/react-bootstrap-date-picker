@@ -8,6 +8,8 @@ const CalendarHeader = React.createClass({
   displayName: "DatePickerHeader",
   propTypes: {
     displayDate: React.PropTypes.object.isRequired,
+    minDate: React.PropTypes.string,
+    maxDate: React.PropTypes.string,
     onChange: React.PropTypes.func.isRequired,
     monthLabels: React.PropTypes.array.isRequired,
     previousButtonElement: React.PropTypes.oneOfType([
@@ -61,16 +63,13 @@ const Calendar = React.createClass({
   },
   render() {
     const currentDate = new Date();
-    const currentDay = currentDate.getDate();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    const selectedDay = this.props.selectedDate ? this.props.selectedDate.getDate() : null;
-    const selectedMonth = this.props.selectedDate ? this.props.selectedDate.getMonth() : null;
-    const selectedYear = this.props.selectedDate ? this.props.selectedDate.getFullYear() : null;
+    const selectedDate = this.props.selectedDate;
     const year = this.props.displayDate.getFullYear();
     const month = this.props.displayDate.getMonth();
     const firstDay = new Date(year, month, 1);
     const startingDay = this.props.weekStartsOnMonday ? (firstDay.getDay() - 1) : firstDay.getDay();
+    const minDate = this.props.minDate;
+    const maxDate = this.props.maxDate;
     let monthLength = daysInMonth[month];
     if (month == 1) {
       if((year % 4 == 0 && year % 100 != 0) || year % 400 == 0){
@@ -83,9 +82,22 @@ const Calendar = React.createClass({
       let week = [];
       for (let j = 0; j <= 6; j++) {
         if (day <= monthLength && (i > 0 || j >= startingDay)) {
-          const selected = day === selectedDay && month == selectedMonth && year === selectedYear;
-          const current = day === currentDay && month == currentMonth && year === currentYear;
-          week.push(<td key={j} onClick={this.handleClick.bind(this, day)} style={{cursor: "pointer", padding: this.props.cellPadding}} className={selected ? "bg-primary" : current ? "text-muted" : null}>{day}</td>);
+          let className = null;
+          const date = new Date(year, month, day, 12, 0, 0, 0).toISOString();
+          if (Date.parse(date) < Date.parse(minDate) || Date.parse(date) < Date.parse(maxDate)) {
+            week.push(<td key={j} style={{ padding: this.props.cellPadding }} className="text-muted">
+              {day}
+            </td>);
+          } else {
+            if (Date.parse(date) === Date.parse(selectedDate)) {
+              className = 'bg-primary';
+            } else if (Date.parse(date) === Date.parse(currentDate)) {
+              className = 'text-primary';
+            }
+            week.push(<td key={j} onClick={this.handleClick.bind(this, day)} style={{ cursor: 'pointer', padding: this.props.cellPadding}} className={className}>
+              {day}
+            </td>);
+          }
           day++;
         } else {
           week.push(<td key={j} />);
@@ -117,6 +129,8 @@ export default React.createClass({
   displayName: "DatePicker",
   propTypes: {
     value: React.PropTypes.string,
+    minDate: React.PropTypes.string,
+    maxDate: React.PropTypes.string,
     cellPadding: React.PropTypes.string,
     placeholder: React.PropTypes.string,
     dayLabels: React.PropTypes.array,
@@ -391,7 +405,7 @@ export default React.createClass({
     return <InputGroup ref="inputGroup"  bsClass={this.props.showClearButton ? this.props.bsClass : ""} bsSize={this.props.bsSize} id={this.props.id ? this.props.id + "_group" : null}>
       <Overlay rootClose={true} onHide={this.handleHide} show={this.state.focused} container={() => this.props.calendarContainer || ReactDOM.findDOMNode(this.refs.overlayContainer)} target={() => ReactDOM.findDOMNode(this.refs.input)} placement={this.props.calendarPlacement} delayHide={200}>
         <Popover id="calendar" title={calendarHeader}>
-          <Calendar cellPadding={this.props.cellPadding} selectedDate={this.state.selectedDate} displayDate={this.state.displayDate} onChange={this.onChangeDate} dayLabels={this.state.dayLabels} weekStartsOnMonday={this.props.weekStartsOnMonday} />
+          <Calendar cellPadding={this.props.cellPadding} selectedDate={this.state.selectedDate} displayDate={this.state.displayDate} onChange={this.onChangeDate} dayLabels={this.state.dayLabels} weekStartsOnMonday={this.props.weekStartsOnMonday} minDate={this.props.minDate} maxDate={this.props.maxDate} />
         </Popover>
       </Overlay>
       <div ref="overlayContainer" />
